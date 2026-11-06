@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart Arrow → Birthday Cake</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ease-spring:cubic-bezier(.34,1.56,.64,1);
+    --ease-out-expo:cubic-bezier(.16,1,.3,1);
+  }
+  body{font-family:'Inter',system-ui,sans-serif}
+  .font-display{font-family:'Playfair Display',Georgia,serif}
+
+  /* ---------- heart breathing ---------- */
+  @keyframes heartBeat{
+    0%,100%{
+      transform:scale(1);
+      filter:drop-shadow(0 0 18px rgba(244,63,94,.55))
+             drop-shadow(0 0 38px rgba(244,63,94,.25));
+    }
+    50%{
+      transform:scale(1.06);
+      filter:drop-shadow(0 0 30px rgba(244,63,94,.85))
+             drop-shadow(0 0 56px rgba(244,63,94,.4));
+    }
+  }
+  #heartInner{
+    animation:heartBeat 2.4s ease-in-out infinite;
+    transform-origin:50% 50%;
+  }
+
+  /* ---------- cake layers hidden by default ---------- */
+  #cakeSvg > g{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    opacity:0;
+  }
+
+  /* ---------- flame flicker ---------- */
+  @keyframes flameDance{
+    0%,100%{transform:scaleY(1) scaleX(1)}
+    20%{transform:scaleY(1.08) scaleX(.94)}
+    40%{transform:scaleY(.92) scaleX(1.04)}
+    60%{transform:scaleY(1.06) scaleX(.96)}
+    80%{transform:scaleY(.96) scaleX(1.02)}
+  }
+  .flame{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    animation:flameDance .42s infinite ease-in-out;
+  }
+
+  /* ---------- screen shake ---------- */
+  @keyframes shake{
+    0%,100%{transform:translate(0,0)}
+    10%{transform:translate(-5px,2px)}
+    20%{transform:translate(5px,-2px)}
+    30%{transform:translate(-4px,-1px)}
+    40%{transform:translate(4px,1px)}
+    50%{transform:translate(-2px,1px)}
+    60%{transform:translate(2px,-1px)}
+    70%{transform:translate(-1px,0)}
+  }
+  .shake{animation:shake .45s ease-out}
+
+  /* ---------- star twinkle ---------- */
+  @keyframes twinkle{
+    0%,100%{opacity:.25}
+    50%{opacity:1}
+  }
+
+  /* ---------- gradient text ---------- */
+  .banner-text{
+    background:linear-gradient(180deg,#fef9c3 0%,#fde047 22%,#f59e0b 58%,#b45309 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    color:transparent;
+    filter:drop-shadow(0 4px 22px rgba(251,191,36,.35))
+           drop-shadow(0 2px 3px rgba(0,0,0,.6));
+  }
+</style>
+</head>
+
+<body class="min-h-screen bg-[#030209] flex items-center justify-center p-4 sm:p-8 antialiased">
+<div class="w-full max-w-5xl">
+
+  <!-- ============================================================
+       SCENE
+  ============================================================ -->
+  <div id="scene"
+       class="relative aspect-[16/9] w-full overflow-hidden rounded-[32px]
+              shadow-[0_40px_100px_-20px_rgba(251,191,36,0.12),
+                      0_0_0_1px_rgba(255,255,255,0.06),
+                      inset_0_0_80px_rgba(0,0,0,0.5)]">
+
+    <!-- backdrop gradients -->
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_105%,#7c2d12_0%,#4a1d3a_30%,#1a0f2e_65%,#030209_100%)]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_55%,rgba(244,63,94,0.08),transparent_55%)]"></div>
+
+    <!-- stars -->
+    <div id="stars" class="absolute inset-0 pointer-events-none"></div>
+
+    <!-- floor line -->
+    <div class="absolute inset-x-[10%] bottom-[15%] h-px bg-gradient-to-r from-transparent via-amber-500/25 to-transparent"></div>
+    <div class="absolute inset-x-0 bottom-0 h-[15%] bg-gradient-to-t from-[#030209] via-[#0a0618] to-transparent"></div>
+
+    <!-- vignette -->
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.65)_100%)] pointer-events-none"></div>
+
+    <!-- ============================================================
+         BOW
+    ============================================================ -->
+    <div id="bow" class="absolute left-[5%] bottom-[15%] h-[56%] opacity-0 z-10">
+      <svg id="bowSvg" viewBox="0 0 130 300" class="h-full w-auto overflow-visible">
+        <defs>
+          <linearGradient id="woodGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stop-color="#1a0d04"/>
+            <stop offset="35%"  stop-color="#6b3a1a"/>
+            <stop offset="50%"  stop-color="#8b5a2b"/>
+            <stop offset="65%"  stop-color="#6b3a1a"/>
+            <stop offset="100%" stop-color="#1a0d04"/>
+          </linearGradient>
+          <linearGradient id="gripGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stop-color="#0f0702"/>
+            <stop offset="50%"  stop-color="#3d2010"/>
+            <stop offset="100%" stop-color="#0f0702"/>
+          </linearGradient>
+        </defs>
+
+        <path d="M 50 20 C 118 70, 118 230, 50 280"
+              fill="none" stroke="#0f0702" stroke-width="17" stroke-linecap="round"/>
+        <path d="M 50 20 C 118 70, 118 230, 50 280"
+              fill="none" stroke="url(#woodGrad)" stroke-width="10" stroke-linecap="round"/>
+        <path d="M 50 20 C 118 70, 118 230, 50 280"
+              fill="none" stroke="rgba(255,220,180,0.18)" stroke-width="2" stroke-linecap="round"
+              transform="translate(-3,0)"/>
+
+        <rect x="88" y="126" width="28" height="50" rx="13" fill="#0f0702"/>
+        <rect x="92" y="131" width="20" height="40" rx="9"  fill="url(#gripGrad)"/>
+        <rect x="92" y="146" width="18" height="3" rx="1.5" fill="#8b5a2b" opacity="0.6"/>
+
+        <path id="bowString" d="M 50 20 Q 50 150 50 280"
+              fill="none" stroke="#f1f5f9" stroke-width="2.5"
+              stroke-linecap="round" opacity="0.95"/>
+      </svg>
+    </div>
+
+    <!-- ============================================================
+         ARROW
+    ============================================================ -->
+    <div id="arrow" class="absolute left-0 top-0 h-0 w-0 opacity-0 z-20"
+         style="transform-origin:0 0;">
+      <svg id="arrowSvg" viewBox="0 0 180 18" class="absolute left-0">
+        <defs>
+          <linearGradient id="shaftGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#d97706"/>
+            <stop offset="45%"  stop-color="#92400e"/>
+            <stop offset="100%" stop-color="#78350f"/>
+          </linearGradient>
+          <linearGradient id="headGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stop-color="#cbd5e1"/>
+            <stop offset="50%"  stop-color="#94a3b8"/>
+            <stop offset="100%" stop-color="#475569"/>
+          </linearGradient>
+        </defs>
+
+        <rect x="0" y="6.5" width="162" height="5" rx="2.5" fill="url(#shaftGrad)"/>
+        <rect x="0" y="7"   width="162" height="1.5" rx="0.75" fill="rgba(255,220,180,0.35)"/>
+
+        <path d="M 155 1.5 L 180 9 L 155 16.5 L 162 9 Z" fill="url(#headGrad)"/>
+        <path d="M 155 1.5 L 180 9 L 155 9 Z" fill="#e2e8f0" opacity="0.5"/>
+
+        <path d="M 3 9 L 26 0 L 26 9 Z"    fill="#dc2626"/>
+        <path d="M 3 9 L 26 18 L 26 9 Z"   fill="#ef4444"/>
+        <path d="M 3 9 L 26 0 L 26 9 Z"    fill="rgba(255,255,255,0.12)"/>
+        <path d="M 14 9 L 34 3.5 L 34 9 Z"  fill="#b91c1c" opacity="0.8"/>
+        <path d="M 14 9 L 34 14.5 L 34 9 Z" fill="#dc2626" opacity="0.8"/>
+      </svg>
+    </div>
+
+    <!-- ============================================================
+         HEART TARGET
+    ============================================================ -->
+    <div id="heart" class="absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2
+                          h-[24%] aspect-square z-10">
+      <div id="heartInner" class="w-full h-full">
+        <svg viewBox="0 0 200 200" class="w-full h-full overflow-visible">
+          <defs>
+            <radialGradient id="heartGrad" cx="38%" cy="32%" r="75%">
+              <stop offset="0%"   stop-color="#fecdd3"/>
+              <stop offset="35%"  stop-color="#fb7185"/>
+              <stop offset="70%"  stop-color="#e11d48"/>
+              <stop offset="100%" stop-color="#881337"/>
+            </radialGradient>
+          </defs>
+
+          <path d="M 100 175
+                   C 40 125, 20 90, 20 62
+                   C 20 32, 45 15, 70 15
+                   C 85 15, 95 25, 100 35
+                   C 105 25, 115 15, 130 15
+                   C 155 15, 180 32, 180 62
+                   C 180 90, 160 125, 100 175 Z"
+                fill="url(#heartGrad)"/>
+
+          <path d="M 100 175
+                   C 40 125, 20 90, 20 62
+                   C 20 32, 45 15, 70 15
+                   C 85 15, 95 25, 100 35
+                   C 105 25, 115 15, 130 15
+                   C 155 15, 180 32, 180 62
+                   C 180 90, 160 125, 100 175 Z"
+                fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+
+          <ellipse cx="68" cy="52" rx="18" ry="12" fill="rgba(255,255,255,0.35)" transform="rotate(-35 68 52)"/>
+          <ellipse cx="58" cy="42" rx="8"  ry="5"  fill="rgba(255,255,255,0.5)"  transform="rotate(-35 58 42)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         CAKE GLOW
+    ============================================================ -->
+    <div id="cakeGlow"
+         class="absolute left-1/2 bottom-[12%] -translate-x-1/2 w-[55%] h-[38%] opacity-0 pointer-events-none z-0"
+         style="background:radial-gradient(ellipse at center, rgba(251,191,36,0.55), transparent 68%);
+                filter:blur(38px);">
+    </div>
+
+    <!-- ============================================================
+         CAKE — FIXED SIZING (explicit aspect ratio, no height chain)
+    ============================================================ -->
+    <div id="cakeWrap"
+         class="absolute left-1/2 bottom-[8%] -translate-x-1/2
+                w-[44%] aspect-[8/9] z-10 pointer-events-none">
+      <svg id="cakeSvg" viewBox="0 0 240 270" class="w-full h-full overflow-visible">
+        <defs>
+          <linearGradient id="tier1Grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#fda4af"/>
+            <stop offset="100%" stop-color="#e11d48"/>
+          </linearGradient>
+          <linearGradient id="tier2Grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#fecdd3"/>
+            <stop offset="100%" stop-color="#fb7185"/>
+          </linearGradient>
+          <linearGradient id="creamGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#fef2f2"/>
+          </linearGradient>
+          <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="#fde047"/>
+            <stop offset="50%"  stop-color="#d4a574"/>
+            <stop offset="100%" stop-color="#b45309"/>
+          </linearGradient>
+        </defs>
+
+        <!-- plate -->
+        <g id="layerPlate">
+          <ellipse cx="120" cy="260" rx="118" ry="10" fill="rgba(0,0,0,0.45)"/>
+          <ellipse cx="120" cy="254" rx="116" ry="10" fill="#94a3b8"/>
+          <ellipse cx="120" cy="251" rx="112" ry="8"  fill="#f8fafc"/>
+          <ellipse cx="120" cy="249" rx="104" ry="6"  fill="#ffffff"/>
+        </g>
+
+        <!-- bottom tier body -->
+        <g id="layerTier1">
+          <rect x="30" y="170" width="180" height="80" rx="14" fill="url(#tier1Grad)"/>
+        </g>
+
+        <!-- bottom tier cream + drips -->
+        <g id="layerTier1Cream">
+          <rect x="30" y="164" width="180" height="26" rx="13" fill="url(#creamGrad)"/>
+          <circle cx="50"  cy="188" r="9"  fill="url(#creamGrad)"/>
+          <circle cx="78"  cy="184" r="6"  fill="url(#creamGrad)"/>
+          <circle cx="108" cy="190" r="10" fill="url(#creamGrad)"/>
+          <circle cx="138" cy="184" r="7"  fill="url(#creamGrad)"/>
+          <circle cx="165" cy="189" r="9"  fill="url(#creamGrad)"/>
+          <circle cx="192" cy="185" r="6"  fill="url(#creamGrad)"/>
+        </g>
+
+        <!-- gold band -->
+        <g id="layerGoldBand">
+          <rect x="30" y="225" width="180" height="8" fill="url(#goldGrad)"/>
+        </g>
+
+        <!-- top tier body -->
+        <g id="layerTier2">
+          <rect x="65" y="95" width="110" height="75" rx="12" fill="url(#tier2Grad)"/>
+        </g>
+
+        <!-- top tier cream + drips -->
+        <g id="layerTier2Cream">
+          <rect x="65" y="89" width="110" height="24" rx="12" fill="url(#creamGrad)"/>
+          <circle cx="80"  cy="110" r="8" fill="url(#creamGrad)"/>
+          <circle cx="102" cy="106" r="5" fill="url(#creamGrad)"/>
+          <circle cx="125" cy="112" r="9" fill="url(#creamGrad)"/>
+          <circle cx="148" cy="106" r="6" fill="url(#creamGrad)"/>
+          <circle cx="162" cy="109" r="7" fill="url(#creamGrad)"/>
+        </g>
+
+        <!-- sprinkles -->
+        <g id="layerSprinkles">
+          <rect x="52"  y="205" width="11" height="3" rx="1.5" fill="#fbbf24" transform="rotate(-20 57 206)"/>
+          <rect x="85"  y="210" width="11" height="3" rx="1.5" fill="#a78bfa" transform="rotate(15 90 211)"/>
+          <rect x="122" y="207" width="11" height="3" rx="1.5" fill="#fbbf24" transform="rotate(-10 127 208)"/>
+          <rect x="158" y="212" width="11" height="3" rx="1.5" fill="#f472b6" transform="rotate(25 163 213)"/>
+          <rect x="185" y="205" width="11" height="3" rx="1.5" fill="#fbbf24" transform="rotate(-15 190 206)"/>
+        </g>
+
+        <!-- candles -->
+        <g id="layerCandles">
+          <rect x="95"  y="45" width="10" height="46" rx="5" fill="#fbbf24"/>
+          <rect x="115" y="38" width="10" height="53" rx="5" fill="#f472b6"/>
+          <rect x="135" y="45" width="10" height="46" rx="5" fill="#34d399"/>
+
+          <path d="M 97 55 h6 M 97 66 h6 M 97 77 h6" stroke="white" stroke-width="2"
+                opacity="0.7" stroke-linecap="round"/>
+          <path d="M 117 48 h6 M 117 60 h6 M 117 72 h6 M 117 84 h6" stroke="white"
+                stroke-width="2" opacity="0.7" stroke-linecap="round"/>
+          <path d="M 137 55 h6 M 137 66 h6 M 137 77 h6" stroke="white" stroke-width="2"
+                opacity="0.7" stroke-linecap="round"/>
+        </g>
+
+        <!-- flames -->
+        <g id="layerFlames">
+          <g class="flame" style="animation-delay:0s">
+            <path d="M 100 45 Q 92 35 100 24 Q 108 35 100 45 Z" fill="#fbbf24"/>
+            <path d="M 100 42 Q 96 37 100 32 Q 104 37 100 42 Z" fill="#fef08a"/>
+          </g>
+          <g class="flame" style="animation-delay:.14s;animation-duration:.36s">
+            <path d="M 120 38 Q 112 28 120 17 Q 128 28 120 38 Z" fill="#fbbf24"/>
+            <path d="M 120 35 Q 116 30 120 25 Q 124 30 120 35 Z" fill="#fef08a"/>
+          </g>
+          <g class="flame" style="animation-delay:.28s;animation-duration:.46s">
+            <path d="M 140 45 Q 132 35 140 24 Q 148 35 140 45 Z" fill="#fbbf24"/>
+            <path d="M 140 42 Q 136 37 140 32 Q 144 37 140 42 Z" fill="#fef08a"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ============================================================
+         BANNER
+    ============================================================ -->
+    <div class="absolute inset-x-0 top-[6%] flex justify-center pointer-events-none z-30">
+      <h1 id="banner"
+          class="font-display text-3xl sm:text-5xl md:text-6xl font-black tracking-tight opacity-0"
+          style="transform:translateY(-20px) scale(0.9);">
+        <span class="banner-text">Happy Birthday</span>
+      </h1>
+    </div>
+
+    <!-- ============================================================
+         FX LAYER
+    ============================================================ -->
+    <div id="fx" class="absolute inset-0 pointer-events-none z-40"></div>
+
+  </div>
+  <!-- ======================= /SCENE ======================= -->
+
+  <!-- replay -->
+  <div class="mt-6 flex justify-center">
+    <button id="replay"
+            class="group relative rounded-full bg-white/5 px-8 py-3 text-sm font-semibold text-white/90
+                   ring-1 ring-white/10 backdrop-blur transition-all
+                   hover:bg-white/10 hover:ring-white/20 active:scale-95
+                   disabled:opacity-40 disabled:cursor-not-allowed">
+      <span class="relative flex items-center gap-2">
+        <svg class="w-4 h-4 transition-transform duration-500 group-hover:-rotate-[360deg]"
+             fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Replay
+      </span>
+    </button>
+  </div>
+</div>
+
+<script>
+(() => {
+  /* ============================================================
+     REFS
+  ============================================================ */
+  const scene     = document.getElementById('scene');
+  const starsEl   = document.getElementById('stars');
+  const fxEl      = document.getElementById('fx');
+  const bow       = document.getElementById('bow');
+  const bowSvg    = document.getElementById('bowSvg');
+  const bowString = document.getElementById('bowString');
+  const arrow     = document.getElementById('arrow');
+  const arrowSvg  = document.getElementById('arrowSvg');
+  const heartEl   = document.getElementById('heart');
+  const heartInner= document.getElementById('heartInner');
+  const cakeGlow  = document.getElementById('cakeGlow');
+  const banner    = document.getElementById('banner');
+  const replayBtn = document.getElementById('replay');
+
+  const cakeLayers = {
+    plate:      document.getElementById('layerPlate'),
+    tier1:      document.getElementById('layerTier1'),
+    tier1Cream: document.getElementById('layerTier1Cream'),
+    goldBand:   document.getElementById('layerGoldBand'),
+    tier2:      document.getElementById('layerTier2'),
+    tier2Cream: document.getElementById('layerTier2Cream'),
+    sprinkles:  document.getElementById('layerSprinkles'),
+    candles:    document.getElementById('layerCandles'),
+    flames:     document.getElementById('layerFlames'),
+  };
+
+  /* ============================================================
+     UTILITIES
+  ============================================================ */
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const easeInOutCubic = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+  const easeOutCubic   = t => 1 - Math.pow(1-t,3);
+  const raf            = () => new Promise(r => requestAnimationFrame(r));
+
+  let running = false;
+  let ARROW_LEN = 170;
+
+  function svgPointToScene(svg, x, y) {
+    const pt = svg.createSVGPoint();
+    pt.x = x; pt.y = y;
+    const p = pt.matrixTransform(svg.getScreenCTM());
+    const s = scene.getBoundingClientRect();
+    return { x: p.x - s.left, y: p.y - s.top };
+  }
+
+  function transitionTo(el, props, duration = 400, easing = 'ease') {
+    return new Promise(resolve => {
+      el.style.transition = `all ${duration}ms ${easing}`;
+      void el.offsetWidth;
+      Object.assign(el.style, props);
+      setTimeout(resolve, duration + 30);
+    });
+  }
+
+  /* ============================================================
+     BOWSTRING
+  ============================================================ */
+  function setStringApex(apexX) {
+    const ctrlX = 2 * apexX - 50;
+    bowString.setAttribute('d', `M 50 20 Q ${ctrlX} 150 50 280`);
+  }
+
+  function animateString(fromX, toX, duration, ease = easeInOutCubic) {
+    return new Promise(resolve => {
+      const t0 = performance.now();
+      (function step(now) {
+        const t = Math.min(1, (now - t0) / duration);
+        setStringApex(fromX + (toX - fromX) * ease(t));
+        t < 1 ? requestAnimationFrame(step) : resolve();
+      })(t0);
+    });
+  }
+
+  /* ============================================================
+     ARROW
+  ============================================================ */
+  function sizeArrow() {
+    const w = Math.min(220, scene.clientWidth * 0.24);
+    const h = w * 18 / 180;
+    arrowSvg.setAttribute('width',  w);
+    arrowSvg.setAttribute('height', h);
+    arrowSvg.style.top = (-h / 2) + 'px';
+    return w;
+  }
+
+  function setArrow(x, y, deg) {
+    arrow.style.transform = `translate(${x}px, ${y}px) rotate(${deg}deg)`;
+  }
+
+  /* ============================================================
+     ARROW FLIGHT
+  ============================================================ */
+  function flyTo(from, bull, len) {
+    const arcH = d => Math.min(135, Math.abs(d) * 0.24);
+
+    let to   = { x: bull.x - len, y: bull.y };
+    let ctrl = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - arcH(to.x - from.x) };
+    const angle = Math.atan2(to.y - ctrl.y, to.x - ctrl.x);
+
+    to   = { x: bull.x - len * Math.cos(angle), y: bull.y - len * Math.sin(angle) };
+    ctrl = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - arcH(to.x - from.x) };
+
+    const duration = 760;
+    const t0 = performance.now();
+    let lastSpark = 0;
+
+    return new Promise(resolve => {
+      (function step(now) {
+        const t  = Math.min(1, (now - t0) / duration);
+        const mt = 1 - t;
+
+        const x  = mt*mt*from.x + 2*mt*t*ctrl.x + t*t*to.x;
+        const y  = mt*mt*from.y + 2*mt*t*ctrl.y + t*t*to.y;
+        const dx = 2*mt*(ctrl.x - from.x) + 2*t*(to.x - ctrl.x);
+        const dy = 2*mt*(ctrl.y - from.y) + 2*t*(to.y - ctrl.y);
+        const deg = Math.atan2(dy, dx) * 180 / Math.PI;
+
+        arrow.style.transform = `translate(${x}px, ${y}px) rotate(${deg}deg)`;
+
+        if (now - lastSpark > 22) {
+          lastSpark = now;
+          const rad = deg * Math.PI / 180;
+          emitSpark(x + len * Math.cos(rad), y + len * Math.sin(rad));
+        }
+
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          arrow.style.transform = `translate(${to.x}px, ${to.y}px) rotate(${deg}deg)`;
+          resolve();
+        }
+      })(t0);
+    });
+  }
+
+  /* ============================================================
+     PARTICLES / EFFECTS
+  ============================================================ */
+  const PALETTE = ['#fbbf24','#ef4444','#f472b6','#60a5fa',
+                   '#34d399','#a78bfa','#fde047','#fb923c'];
+
+  function emitSpark(x, y) {
+    const s = document.createElement('div');
+    const size = 2.5 + Math.random() * 3;
+    s.className = 'absolute rounded-full pointer-events-none';
+    s.style.cssText =
+      `left:${x}px;top:${y}px;width:${size}px;height:${size}px;` +
+      `background:#fde047;box-shadow:0 0 ${6+Math.random()*6}px rgba(251,191,36,0.9);`;
+    fxEl.appendChild(s);
+
+    const dx = (Math.random() - .5) * 14;
+    const dy = (Math.random() - .5) * 14;
+
+    s.animate([
+      { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
+      { transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0)`, opacity:0 }
+    ], { duration:320 + Math.random()*180, easing:'ease-out' })
+     .finished.then(() => s.remove());
+  }
+
+  function burst(x, y) {
+    const ring = document.createElement('div');
+    ring.className = 'absolute rounded-full pointer-events-none';
+    ring.style.cssText =
+      `left:${x}px;top:${y}px;width:10px;height:10px;` +
+      `border:2px solid rgba(244,63,94,0.9);` +
+      `box-shadow:0 0 24px rgba(244,63,94,0.7);`;
+    fxEl.appendChild(ring);
+
+    ring.animate([
+      { transform:'translate(-50%,-50%) scale(.2)', opacity:1, borderWidth:'3px' },
+      { transform:'translate(-50%,-50%) scale(11)', opacity:0, borderWidth:'1px' }
+    ], { duration:600, easing:'cubic-bezier(.16,1,.3,1)' })
+     .finished.then(() => ring.remove());
+
+    const flash = document.createElement('div');
+    flash.className = 'absolute rounded-full pointer-events-none';
+    flash.style.cssText =
+      `left:${x}px;top:${y}px;width:140px;height:140px;` +
+      `background:radial-gradient(circle,rgba(255,255,255,0.95),transparent 70%);`;
+    fxEl.appendChild(flash);
+
+    flash.animate([
+      { transform:'translate(-50%,-50%) scale(.3)', opacity:1 },
+      { transform:'translate(-50%,-50%) scale(1.7)', opacity:0 }
+    ], { duration:400, easing:'ease-out' })
+     .finished.then(() => flash.remove());
+
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      const size = 4 + Math.random() * 8;
+      p.className = 'absolute rounded-full pointer-events-none';
+      p.style.cssText =
+        `left:${x}px;top:${y}px;width:${size}px;height:${size}px;` +
+        `background:${PALETTE[i % PALETTE.length]};` +
+        `box-shadow:0 0 6px ${PALETTE[i % PALETTE.length]};`;
+      fxEl.appendChild(p);
+
+      const ang  = Math.random() * Math.PI * 2;
+      const dist = 50 + Math.random() * 140;
+      const dx   = Math.cos(ang) * dist;
+      const dy   = Math.sin(ang) * dist - 20;
+
+      p.animate([
+        { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
+        { transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0)`, opacity:0 }
+      ], { duration:520 + Math.random()*420, easing:'cubic-bezier(.2,.8,.3,1)' })
+       .finished.then(() => p.remove());
+    }
+  }
+
+  function confetti(count = 90) {
+    const H = scene.clientHeight;
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement('div');
+      const w = 5 + Math.random() * 8;
+      const h = 8 + Math.random() * 12;
+      c.className = 'absolute pointer-events-none';
+      c.style.cssText =
+        `left:${Math.random()*100}%;top:-24px;width:${w}px;height:${h}px;` +
+        `background:${PALETTE[i % PALETTE.length]};` +
+        `border-radius:${Math.random() > .5 ? '50%' : '2px'};` +
+        `box-shadow:0 0 4px ${PALETTE[i % PALETTE.length]}50;`;
+      fxEl.appendChild(c);
+
+      const drift = (Math.random() - .5) * 260;
+      const spin  = 540 + Math.random() * 900;
+
+      c.animate([
+        { transform:'translate(0,0) rotate(0deg)', opacity:1 },
+        { transform:`translate(${drift}px,${H + 100}px) rotate(${spin}deg)`, opacity:.9 }
+      ], {
+        duration: 2400 + Math.random()*2000,
+        delay: Math.random()*1000,
+        easing: 'cubic-bezier(.3,.1,.6,1)',
+        fill: 'backwards'
+      }).finished.then(() => c.remove());
+    }
+  }
+
+  /* ============================================================
+     STARS
+  ============================================================ */
+  function buildStars() {
+    starsEl.innerHTML = '';
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement('div');
+      const size = Math.random() * 2 + 1;
+      s.className = 'absolute rounded-full bg-white';
+      s.style.cssText =
+        `left:${Math.random()*100}%;top:${Math.random()*60}%;` +
+        `width:${size}px;height:${size}px;` +
+        `opacity:${0.2 + Math.random()*0.6};` +
+        `animation:twinkle ${2 + Math.random()*3}s ${Math.random()*3}s infinite ease-in-out;`;
+      starsEl.appendChild(s);
+    }
+  }
+
+  /* ============================================================
+     RESET
+  ============================================================ */
+  function reset() {
+    fxEl.innerHTML = '';
+    scene.classList.remove('shake');
+
+    // arrow
+    arrow.getAnimations().forEach(a => a.cancel());
+    arrow.style.transition = 'none';
+    arrow.style.opacity    = '0';
+    setArrow(-500, -500, 0);
+
+    // bow
+    bow.getAnimations().forEach(a => a.cancel());
+    bow.style.transition = 'none';
+    bow.style.opacity    = '0';
+    bow.style.transform  = 'none';
+    setStringApex(50);
+
+    // heart
+    heartInner.getAnimations().forEach(a => a.cancel());
+    heartInner.style.opacity   = '1';
+    heartInner.style.transform = '';
+
+    // cake layers
+    Object.values(cakeLayers).forEach(el => {
+      el.getAnimations().forEach(a => a.cancel());
+    });
+
+    // cake glow
+    cakeGlow.getAnimations().forEach(a => a.cancel());
+    cakeGlow.style.transition = 'none';
+    cakeGlow.style.opacity    = '0';
+
+    // banner
+    banner.getAnimations().forEach(a => a.cancel());
+    banner.style.transition = 'none';
+    banner.style.opacity    = '0';
+    banner.style.transform  = 'translateY(-20px) scale(0.9)';
+  }
+
+  /* ============================================================
+     CAKE BUILD — each layer pops in from bottom
+  ============================================================ */
+  async function buildCake() {
+    const order = [
+      { key:'plate',      delay:0    },
+      { key:'tier1',      delay:120  },
+      { key:'tier1Cream', delay:260  },
+      { key:'goldBand',   delay:380  },
+      { key:'tier2',      delay:500  },
+      { key:'tier2Cream', delay:640  },
+      { key:'sprinkles',  delay:760  },
+      { key:'candles',    delay:880  },
+      { key:'flames',     delay:1040 },
+    ];
+
+    const promises = order.map(({ key, delay }) => {
+      const el = cakeLayers[key];
+      el.getAnimations().forEach(a => a.cancel());
+
+      return el.animate([
+        { opacity:0, transform:'translateY(30px) scale(0.7)' },
+        { opacity:1, transform:'translateY(0) scale(1)' }
+      ], {
+        duration: 520,
+        delay,
+        easing: 'cubic-bezier(.34,1.56,.64,1)',
+        fill: 'forwards'
+      }).finished.catch(() => {});
+    });
+
+    await Promise.all(promises);
+  }
+
+  /* ============================================================
+     MAIN SEQUENCE
+  ============================================================ */
+  async function play() {
+    if (running) return;
+    running = true;
+    replayBtn.disabled = true;
+
+    reset();
+    ARROW_LEN = sizeArrow();
+
+    await raf(); await raf();
+
+    const nockRest  = svgPointToScene(bowSvg, 50, 150);
+    const nockDrawn = svgPointToScene(bowSvg, 10, 150);
+
+    setArrow(nockRest.x, nockRest.y, 0);
+
+    await sleep(300);
+
+    /* 1 · bow + arrow appear */
+    bow.style.transition   = 'opacity .7s ease';
+    bow.style.opacity      = '1';
+    arrow.style.transition = 'opacity .35s ease';
+    arrow.style.opacity    = '1';
+
+    await sleep(750);
+
+    /* 2 · draw */
+    await Promise.all([
+      animateString(50, 10, 650),
+      transitionTo(arrow,
+        { transform:`translate(${nockDrawn.x}px,${nockDrawn.y}px) rotate(0deg)` },
+        650, 'cubic-bezier(.45,0,.25,1)')
+    ]);
+
+    await sleep(250);
+
+    /* 3 · release */
+    arrow.style.transition = 'none';
+    animateString(10, 50, 120, easeOutCubic);
+
+    const hr = heartEl.getBoundingClientRect();
+    const sr = scene.getBoundingClientRect();
+    const heart = {
+      x: hr.left - sr.left + hr.width  * 0.5,
+      y: hr.top  - sr.top  + hr.height * 0.45
+    };
+
+    await flyTo(nockDrawn, heart, ARROW_LEN);
+
+    /* 4 · IMPACT */
+    burst(heart.x, heart.y);
+    scene.classList.add('shake');
+    setTimeout(() => scene.classList.remove('shake'), 500);
+
+    heartInner.animate([
+      { transform:'scale(1)'    },
+      { transform:'scale(1.35)' },
+      { transform:'scale(1.1)'  }
+    ], { duration:350, easing:'ease-out', fill:'forwards' });
+
+    await sleep(370);
+
+    /* 5 · heart explodes + bow/arrow vanish */
+    heartInner.animate([
+      { transform:'scale(1.1)', opacity:1 },
+      { transform:'scale(2.2)', opacity:0 }
+    ], { duration:450, easing:'cubic-bezier(.34,1.56,.64,1)', fill:'forwards' });
+
+    arrow.style.transition = 'opacity .5s ease';
+    arrow.style.opacity    = '0';
+
+    bow.style.transition   = 'opacity .55s ease, transform .6s cubic-bezier(.4,0,.6,1)';
+    bow.style.opacity      = '0';
+    bow.style.transform    = 'scale(.85) translateY(8px)';
+
+    await sleep(620);
+
+    /* 6 · cake builds up */
+    confetti(70);
+
+    cakeGlow.style.transition = 'opacity 1.4s ease';
+    cakeGlow.style.opacity    = '1';
+
+    await buildCake();
+
+    /* 7 · banner */
+    banner.style.transition = 'opacity .7s ease, transform .9s cubic-bezier(.34,1.56,.64,1)';
+    void banner.offsetWidth;
+    banner.style.opacity    = '1';
+    banner.style.transform  = 'translateY(0) scale(1)';
+
+    await sleep(1100);
+
+    running = false;
+    replayBtn.disabled = false;
+  }
+
+  /* ============================================================
+     BOOT
+  ============================================================ */
+  buildStars();
+  replayBtn.addEventListener('click', play);
+  window.addEventListener('resize', () => { if (!running) ARROW_LEN = sizeArrow(); });
+
+  reset();
+  setTimeout(play, 550);
+})();
+</script>
+</body>
+</html>
